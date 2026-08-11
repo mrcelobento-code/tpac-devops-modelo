@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/python:1-3.12-bookworm
+FROM mcr.microsoft.com/devcontainers/python:3.12-bookworm
 
 # O cliente MySQL permite que o aluno teste e importe o banco pelo terminal.
 # O servidor MySQL roda em outro contêiner definido no compose.yaml.
