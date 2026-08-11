@@ -1,12 +1,9 @@
 -- ============================================================
 -- BANCO DE DADOS DO TPAC - LABORATÓRIO DEVOPS
--- Este arquivo pode ser executado mais de uma vez durante a aula.
--- ATENÇÃO: ele recria as tabelas e apaga os dados anteriores.
+-- O serviço MySQL do Codespaces já cria o banco vazio tpac_db.
+-- Este arquivo cria/recria as tabelas e os dados de exemplo.
+-- ATENÇÃO: executar novamente apaga os dados anteriores da aula.
 -- ============================================================
-
-CREATE DATABASE IF NOT EXISTS tpac_db
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
 
 USE tpac_db;
 
