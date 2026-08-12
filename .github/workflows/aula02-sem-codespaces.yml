@@ -1,0 +1,98 @@
+name: Aula 02 - Implantação TPaC sem Codespaces
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "aula02/configuracao.env"
+      - "database.sql"
+      - "requirements.txt"
+      - "main.py"
+      - "core/**"
+      - "data/**"
+      - "ui/**"
+      - "scripts/validar_tpac_ci.py"
+      - ".github/workflows/aula02-sem-codespaces.yml"
+
+jobs:
+  validar-implantacao:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: tpac_db
+          MYSQL_USER: tpac
+          MYSQL_PASSWORD: tpac
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+          --health-start-period=20s
+
+    steps:
+      - name: 1. Baixar o projeto TPaC
+        uses: actions/checkout@v4
+
+      - name: 2. Preparar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 3. Instalar cliente MySQL no Linux remoto
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-mysql-client
+
+      - name: 4. Instalar dependências Python do TPaC
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: 5. Conferir sintaxe dos arquivos Python
+        run: |
+          python -m py_compile main.py data/data_manager.py core/tarefas.py core/ia_service.py ui/menus.py ui/utils.py scripts/validar_tpac_ci.py
+
+      - name: 6. Esperar o MySQL ficar disponível
+        run: |
+          for tentativa in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; then
+              echo "MySQL está disponível."
+              exit 0
+            fi
+            echo "Aguardando MySQL... tentativa $tentativa/30"
+            sleep 2
+          done
+          echo "ERRO: MySQL não ficou disponível a tempo."
+          exit 1
+
+      - name: 7. Criar e importar o banco tpac_db
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot < database.sql
+          echo "Banco importado."
+
+      - name: 8. Validar a implantação usando a configuração do aluno
+        run: |
+          python scripts/validar_tpac_ci.py
+
+      - name: 9. Registrar resumo da implantação
+        if: success()
+        run: |
+          {
+            echo "# ✅ TPaC implantado com sucesso"
+            echo ""
+            echo "O GitHub preparou uma máquina Linux temporária e validou:"
+            echo "- Python 3.12"
+            echo "- dependências do requirements.txt"
+            echo "- MySQL 8.4"
+            echo "- banco tpac_db"
+            echo "- tabelas usuarios, tarefas e passos"
+            echo "- conexão do Python com o MySQL"
+            echo "- leitura dos dados pelo data_manager.py"
+          } >> "$GITHUB_STEP_SUMMARY"
