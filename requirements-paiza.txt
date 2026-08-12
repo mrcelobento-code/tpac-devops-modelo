@@ -1,4 +1,4 @@
-# Dependências compatíveis com o ambiente gratuito atual do PaizaCloud.
-# Mantemos versões antigas porque o PaizaCloud informa Ubuntu 18.04 no plano gratuito.
-mysql-connector-python==8.0.33
+# Dependências específicas do PaizaCloud gratuito (Python 3.6.9 observado no ambiente em 11/08/2026).
+# Não alterar para versões atuais sem testar: o ambiente gratuito usa Python antigo.
+mysql-connector-python==8.0.26
 python-dotenv==0.19.2
