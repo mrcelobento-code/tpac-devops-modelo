@@ -4,7 +4,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-CONFIG = Path("aula02/configuracao.env")
+RAIZ_PROJETO = Path(__file__).resolve().parents[1]
+if str(RAIZ_PROJETO) not in sys.path:
+    sys.path.insert(0, str(RAIZ_PROJETO))
+
+CONFIG = RAIZ_PROJETO / "aula02" / "configuracao.env"
 
 print("=" * 64)
 print("TPAC DEVOPS — VALIDAÇÃO DA IMPLANTAÇÃO REMOTA")
